@@ -67,7 +67,7 @@ export const api = {
   getMovies: (page = 0, size = 20) =>
     request<PageResponse<MovieSummary>>(`/movies?page=${page}&size=${size}`),
   searchMovies: (query: string) => request<SearchResponse>(`/search?q=${encodeURIComponent(query)}`),
-  getMovie: (movieId: string | number) => request<MovieDetail>(`/movies/${movieId}`),
+  getMovie: (movieId: string | number) => request<MovieDetail>(`/movies/${movieId}`, { auth: true }),
   getReviews: (movieId: string | number) => request<Review[]>(`/movies/${movieId}/reviews`),
   rateMovie: (movieId: string | number, score: number) =>
     request<MessageResponse>(`/movies/${movieId}/rating`, { method: 'POST', body: { score }, auth: true }),

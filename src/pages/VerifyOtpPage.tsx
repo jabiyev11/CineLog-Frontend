@@ -1,16 +1,25 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { ErrorBanner, SuccessBanner } from '../components/Feedback';
 import { api } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
+
+type VerificationState = {
+  email?: string;
+  password?: string;
+};
 
 export default function VerifyOtpPage() {
   const [searchParams] = useSearchParams();
-  const [email, setEmail] = useState(searchParams.get('email') ?? '');
+  const location = useLocation();
+  const verificationState = location.state as VerificationState | null;
+  const [email, setEmail] = useState(searchParams.get('email') ?? verificationState?.email ?? '');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,7 +35,15 @@ export default function VerifyOtpPage() {
     setSuccess('');
     try {
       const response = await api.verifyOtp({ email, otp });
-      setSuccess(response.message);
+      const password = verificationState?.email === email ? verificationState.password : undefined;
+
+      if (password) {
+        await login({ email, password });
+        navigate('/', { replace: true });
+        return;
+      }
+
+      setSuccess(`${response.message} You can log in now.`);
       window.setTimeout(() => navigate('/login'), 900);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Verification failed.');

@@ -44,7 +44,7 @@ export default function WatchHistoryPage() {
           {items.map((item) => (
             <Link key={item.id} className="timeline-card" to={`/movies/${item.movieId}`}>
               <img src={item.posterImageUrl} alt={item.title} />
-              <div>
+              <div className="stack-md">
                 <strong>{item.title}</strong>
                 <span>{item.releaseYear}</span>
                 <small>Watched {formatDate(item.watchedDate)}</small>

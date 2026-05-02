@@ -47,6 +47,9 @@ export type MovieDetail = {
   backdropImageUrl: string | null;
   imageUrls: string[];
   averageRating: number | null;
+  userRating?: number | null;
+  myRating?: number | null;
+  currentUserRating?: number | null;
 };
 
 export type SearchResult = {
@@ -54,6 +57,7 @@ export type SearchResult = {
   title: string;
   releaseYear: number;
   posterImageUrl: string;
+  averageRating?: number | null;
 };
 
 export type SearchResponse = {

@@ -18,7 +18,10 @@ export default function RegisterPage() {
     try {
       const response = await api.register(form);
       setSuccess(response.message);
-      navigate(`/verify-otp?email=${encodeURIComponent(form.email)}`, { replace: true });
+      navigate(`/verify-otp?email=${encodeURIComponent(form.email)}`, {
+        replace: true,
+        state: { email: form.email, password: form.password },
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed.');
     } finally {

@@ -4,6 +4,7 @@ import { EmptyState, ErrorBanner, SuccessBanner } from '../components/Feedback';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
 import { formatDate, formatRating, minutesToRuntime } from '../lib/format';
+import { getStoredUserRating, removeStoredUserRating, setStoredUserRating } from '../lib/storage';
 import type { MovieDetail, Review } from '../types/models';
 
 export default function MovieDetailPage() {
@@ -35,9 +36,14 @@ export default function MovieDetailPage() {
           const ownReview = auth?.username
             ? reviewResponse.find((review) => review.username === auth.username)
             : undefined;
+          const ownRating =
+            ownReview?.rating ??
+            movieResponse.userRating ??
+            movieResponse.myRating ??
+            movieResponse.currentUserRating ??
+            (auth?.username ? getStoredUserRating(auth.username, movieId) : null);
           setReviewText(ownReview?.text ?? '');
-          if (ownReview?.rating != null) setRating(String(ownReview.rating));
-          else setRating('0');
+          setRating(String(ownRating ?? 0));
         }
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : 'Could not load movie.');
@@ -63,7 +69,9 @@ export default function MovieDetailPage() {
     setError('');
     setFeedback('');
     try {
-      await api.rateMovie(movieId, Number(rating));
+      const selectedRating = Number(rating);
+      await api.rateMovie(movieId, selectedRating);
+      if (auth?.username) setStoredUserRating(auth.username, movieId, selectedRating);
       setFeedback('Rating saved.');
       setMovie(await api.getMovie(movieId));
       await refreshReviews();
@@ -83,7 +91,12 @@ export default function MovieDetailPage() {
         await api.updateReview(movieId, ownReview.id, { text: reviewText });
         setFeedback('Review updated.');
       } else {
-        await api.createReview(movieId, { text: reviewText, score: Number(rating) });
+        const selectedRating = Number(rating);
+        await api.createReview(movieId, {
+          text: reviewText,
+          ...(selectedRating > 0 ? { score: selectedRating } : {}),
+        });
+        if (auth?.username && selectedRating > 0) setStoredUserRating(auth.username, movieId, selectedRating);
         setFeedback('Review published.');
       }
       setMovie(await api.getMovie(movieId));
@@ -111,7 +124,7 @@ export default function MovieDetailPage() {
     setFeedback('');
     try {
       const response = await api.addToWatchlog(movieId, watchedDate);
-      setFeedback(response.message);
+      setFeedback(response.message || 'Watch logged.');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not log watch.');
     }
@@ -135,6 +148,7 @@ export default function MovieDetailPage() {
       const response = await api.deleteRating(movieId);
       setFeedback(response.message);
       setRating('0');
+      if (auth?.username) removeStoredUserRating(auth.username, movieId);
       setMovie(await api.getMovie(movieId));
       await refreshReviews();
     } catch (err) {

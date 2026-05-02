@@ -70,7 +70,14 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <button className="google-button" type="button" onClick={onGoogleLogin} disabled={googleLoading}>
+        <div className="auth-divider">
+          <span>or</span>
+        </div>
+
+        <button className="google-button wide" type="button" onClick={onGoogleLogin} disabled={googleLoading}>
+          <span className="google-icon" aria-hidden="true">
+            G
+          </span>
           {googleLoading ? 'Opening Google...' : 'Continue with Google'}
         </button>
 

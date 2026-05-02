@@ -3,16 +3,22 @@ import { useSearchParams } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import { EmptyState, ErrorBanner } from '../components/Feedback';
 import { api } from '../lib/api';
-import type { MovieSummary, SearchResponse } from '../types/models';
+import type { MovieSummary, PageResponse, SearchResponse } from '../types/models';
+
+const MOVIES_PAGE_SIZE = 24;
 
 export default function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [movies, setMovies] = useState<MovieSummary[]>([]);
+  const [moviePage, setMoviePage] = useState<PageResponse<MovieSummary> | null>(null);
   const [search, setSearch] = useState<SearchResponse | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
   const query = searchParams.get('q')?.trim() ?? '';
+  const requestedPage = Number(searchParams.get('page') ?? '1');
+  const currentPage = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  const backendPage = currentPage - 1;
 
   useEffect(() => {
     let cancelled = false;
@@ -22,11 +28,23 @@ export default function HomePage() {
       try {
         if (query) {
           const response = await api.searchMovies(query);
-          if (!cancelled) setSearch(response);
+          const results = await Promise.all(
+            response.results.map(async (movie) => {
+              if (movie.averageRating !== undefined) return movie;
+              try {
+                const details = await api.getMovie(movie.id);
+                return { ...movie, averageRating: details.averageRating };
+              } catch {
+                return movie;
+              }
+            }),
+          );
+          if (!cancelled) setSearch({ ...response, results });
         } else {
-          const response = await api.getMovies(0, 24);
+          const response = await api.getMovies(backendPage, MOVIES_PAGE_SIZE);
           if (!cancelled) {
             setMovies(response.content);
+            setMoviePage(response);
             setSearch(null);
           }
         }
@@ -40,7 +58,46 @@ export default function HomePage() {
     return () => {
       cancelled = true;
     };
-  }, [query]);
+  }, [backendPage, query]);
+
+  useEffect(() => {
+    if (query) return;
+    if (!moviePage || moviePage.totalPages === 0) return;
+    if (currentPage <= moviePage.totalPages) return;
+    updateCatalogPage(moviePage.totalPages);
+  }, [currentPage, moviePage, query]);
+
+  function updateCatalogPage(page: number) {
+    const nextParams = new URLSearchParams(searchParams);
+    if (page <= 1) {
+      nextParams.delete('page');
+    } else {
+      nextParams.set('page', String(page));
+    }
+    setSearchParams(nextParams);
+  }
+
+  function renderPageNumbers() {
+    if (!moviePage || moviePage.totalPages <= 1) return null;
+
+    const totalPages = moviePage.totalPages;
+    const pages = Array.from(
+      { length: Math.min(5, totalPages) },
+      (_, index) => Math.min(Math.max(currentPage - 2, 1), Math.max(totalPages - 4, 1)) + index,
+    );
+
+    return pages.map((page) => (
+      <button
+        key={page}
+        className={`page-button${page === currentPage ? ' active' : ''}`}
+        type="button"
+        aria-current={page === currentPage ? 'page' : undefined}
+        onClick={() => updateCatalogPage(page)}
+      >
+        {page}
+      </button>
+    ));
+  }
 
   return (
     <div className="stack-xl">
@@ -89,18 +146,45 @@ export default function HomePage() {
         search?.results.length ? (
           <div className="movie-grid">
             {search.results.map((movie) => (
-              <MovieCard key={movie.id} movie={{ ...movie, averageRating: null }} />
+              <MovieCard key={movie.id} movie={{ ...movie, averageRating: movie.averageRating ?? null }} />
             ))}
           </div>
         ) : (
           <EmptyState title="No matches" description={search?.message ?? 'Try another search term.'} />
         )
       ) : movies.length ? (
-        <div className="movie-grid">
-          {movies.map((movie) => (
-            <MovieCard key={movie.id} movie={movie} />
-          ))}
-        </div>
+        <>
+          <div className="movie-grid">
+            {movies.map((movie) => (
+              <MovieCard key={movie.id} movie={movie} />
+            ))}
+          </div>
+
+          {moviePage && moviePage.totalPages > 1 ? (
+            <nav className="pagination-bar" aria-label="Movie catalog pages">
+              <button
+                className="ghost-button small"
+                type="button"
+                disabled={currentPage <= 1}
+                onClick={() => updateCatalogPage(currentPage - 1)}
+              >
+                Previous
+              </button>
+              <div className="pagination-pages">{renderPageNumbers()}</div>
+              <button
+                className="ghost-button small"
+                type="button"
+                disabled={currentPage >= moviePage.totalPages}
+                onClick={() => updateCatalogPage(currentPage + 1)}
+              >
+                Next
+              </button>
+              <span className="pagination-summary">
+                Page {currentPage} of {moviePage.totalPages}
+              </span>
+            </nav>
+          ) : null}
+        </>
       ) : (
         <EmptyState title="No movies yet" description="Seed your backend and they’ll appear here." />
       )}
