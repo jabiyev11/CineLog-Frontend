@@ -18,6 +18,7 @@ export default function MovieDetailPage() {
   const [feedback, setFeedback] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [likedReviewIds, setLikedReviewIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -133,7 +134,12 @@ export default function MovieDetailPage() {
   async function handleToggleLike(reviewId: number) {
     setError('');
     try {
-      await api.toggleReviewLike(reviewId);
+      const res = await api.toggleReviewLike(reviewId);
+      setLikedReviewIds((prev) => {
+        const next = new Set(prev);
+        res.liked ? next.add(reviewId) : next.delete(reviewId);
+        return next;
+      });
       await refreshReviews();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not like review.');
@@ -351,8 +357,14 @@ export default function MovieDetailPage() {
                   </div>
                 </header>
                 <p>{review.text}</p>
-                <button className="ghost-button small" onClick={() => handleToggleLike(review.id)}>
-                  Appreciate review · {review.likeCount}
+                <button
+                  className={`like-btn${likedReviewIds.has(review.id) ? ' liked' : ''}`}
+                  onClick={() => handleToggleLike(review.id)}
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                    <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 9 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                  </svg>
+                  {review.likeCount}
                 </button>
               </article>
             ))}

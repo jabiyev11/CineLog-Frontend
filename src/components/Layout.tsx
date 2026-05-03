@@ -51,6 +51,11 @@ export default function Layout() {
         <div className="auth-actions">
           {isAuthenticated ? (
             <>
+              {auth?.role === 'ADMIN' && (
+                <NavLink className="admin-nav-badge" to="/admin">
+                  ⚙ Admin
+                </NavLink>
+              )}
               <NavLink className="ghost-button" to={`/profile/${auth?.username}`}>
                 {auth?.username}
               </NavLink>

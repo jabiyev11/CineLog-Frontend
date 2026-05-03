@@ -745,6 +745,29 @@ button:disabled {
   width: fit-content;
 }
 
+.like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.like-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--text);
+}
+
+.like-btn.liked {
+  background: rgba(247, 198, 90, 0.15);
+  color: var(--accent);
+}
+
 .profile-hero {
   display: grid;
   grid-template-columns: 120px 1fr;
@@ -816,6 +839,252 @@ button:disabled {
   color: var(--muted);
 }
 
+/* ── Admin ── */
+
+.admin-loading {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.admin-table {
+  display: grid;
+}
+
+.admin-table-head {
+  display: grid;
+  grid-template-columns: 1fr 80px 100px 160px;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.admin-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 100px 160px;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+  transition: background 150ms ease;
+}
+
+.admin-row:last-child {
+  border-bottom: none;
+}
+
+.admin-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.admin-movie-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.admin-poster {
+  width: 38px;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.admin-movie-title {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-movie-id {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.admin-cell {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.admin-rating {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.admin-edit-btn,
+.admin-delete-btn {
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: 160ms ease;
+}
+
+.admin-edit-btn {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text);
+}
+
+.admin-edit-btn:hover {
+  background: rgba(255, 255, 255, 0.13);
+  transform: translateY(-1px);
+}
+
+.admin-delete-btn {
+  background: rgba(239, 101, 101, 0.14);
+  color: #ffd8d8;
+}
+
+.admin-delete-btn:hover {
+  background: rgba(239, 101, 101, 0.26);
+  transform: translateY(-1px);
+}
+
+/* Modal */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(5, 7, 13, 0.82);
+  backdrop-filter: blur(8px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.modal-card {
+  width: min(660px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--panel-solid);
+  border: 1px solid var(--line);
+  border-radius: 30px;
+  padding: 32px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.modal-card--sm {
+  width: min(440px, 100%);
+  text-align: center;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.modal-close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+  font-size: 1rem;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: 160ms ease;
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* Movie form */
+
+.movie-form {
+  display: grid;
+  gap: 16px;
+}
+
+.movie-form label {
+  display: grid;
+  gap: 8px;
+  font-size: 0.93rem;
+  font-weight: 600;
+}
+
+.movie-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.field-hint {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.82rem;
+}
+
+/* Delete confirm */
+
+.delete-confirm-icon {
+  font-size: 2.2rem;
+  margin-bottom: 12px;
+}
+
+.delete-confirm-text {
+  color: var(--muted);
+  margin: 10px 0 22px;
+  line-height: 1.6;
+}
+
+/* Admin nav badge */
+.admin-nav-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.92rem;
+  background: rgba(247, 198, 90, 0.08);
+  transition: 180ms ease;
+}
+
+.admin-nav-badge:hover {
+  background: rgba(247, 198, 90, 0.15);
+}
+
 @media (max-width: 1100px) {
   .topbar {
     grid-template-columns: 1fr;
@@ -834,6 +1103,51 @@ button:disabled {
 }
 
 @media (max-width: 760px) {
+  .admin-table-head {
+    display: none;
+  }
+
+  .admin-row {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+  }
+
+  .admin-movie-info {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .admin-cell {
+    display: none;
+  }
+
+  .admin-actions {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-card {
+    padding: 20px;
+    border-radius: 22px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions .ghost-button,
+  .modal-actions .solid-button,
+  .modal-actions .danger-button {
+    width: 100%;
+    justify-content: center;
+  }
+
   .shell {
     padding: 12px;
   }

@@ -5,6 +5,7 @@ import type {
   ErrorResponse,
   MessageResponse,
   MovieDetail,
+  MovieRequest,
   MovieSummary,
   PageResponse,
   Review,
@@ -97,6 +98,12 @@ export const api = {
   getProfileStats: (username: string) =>
     request<UserStats>(`/users/${encodeURIComponent(username)}/stats`),
   deleteAccount: () => request<MessageResponse>('/users/me', { method: 'DELETE', auth: true }),
+  adminCreateMovie: (payload: MovieRequest) =>
+    request<MovieDetail>('/admin/movies', { method: 'POST', body: payload, auth: true }),
+  adminUpdateMovie: (id: number, payload: MovieRequest) =>
+    request<MovieDetail>(`/admin/movies/${id}`, { method: 'PUT', body: payload, auth: true }),
+  adminDeleteMovie: (id: number) =>
+    request<void>(`/admin/movies/${id}`, { method: 'DELETE', auth: true }),
 };
 
 export { ApiError };

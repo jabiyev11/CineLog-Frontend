@@ -110,3 +110,18 @@ export type ToggleLikeResponse = {
   liked: boolean;
   likeCount: number;
 };
+
+export type MovieRequest = {
+  title: string;
+  releaseYear: number;
+  directors: string[];
+  cast: string[];
+  genres: string[];
+  durationMinutes: number;
+  country: string;
+  language: string;
+  synopsis: string;
+  posterImageUrl: string;
+  backdropImageUrl: string | null;
+  imageUrls: string[];
+};
